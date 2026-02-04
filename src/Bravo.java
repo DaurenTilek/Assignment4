@@ -15,6 +15,7 @@ public class Bravo {
         String filePath = "quiz.txt";
 
         try (Connection connection = DriverManager.getConnection(connectionUrl, userName, userPassword)) {
+
             Statement statement = connection.createStatement();
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS Quiz (" +
                     "questionId INT, " +
@@ -25,12 +26,14 @@ public class Bravo {
                     "choiced VARCHAR(1000), " +
                     "answer VARCHAR(5))");
 
+            statement.executeUpdate("DELETE FROM Quiz");
+
             String insertSql = "INSERT INTO Quiz VALUES (?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement preparedstatement = connection.prepareStatement(insertSql);
+            PreparedStatement preparedStatement = connection.prepareStatement(insertSql);
 
             File quizFile = new File(filePath);
             Scanner fileReader = new Scanner(quizFile);
-            int currentQuestionId = 1;
+            int QuestionId = 1;
 
             while (fileReader.hasNextLine()) {
                 String line = fileReader.nextLine();
@@ -43,25 +46,28 @@ public class Bravo {
                 String choiceD = fileReader.nextLine().substring(3);
                 String answerLine = fileReader.nextLine().substring(8);
 
-                preparedstatement.setInt(1, currentQuestionId++);
-                preparedstatement.setString(2, questionText);
-                preparedstatement.setString(3, choiceA);
-                preparedstatement.setString(4, choiceB);
-                preparedstatement.setString(5, choiceC);
-                preparedstatement.setString(6, choiceD);
-                preparedstatement.setString(7, answerLine);
+                preparedStatement.setInt(1, QuestionId++);
+                preparedStatement.setString(2, questionText);
+                preparedStatement.setString(3, choiceA);
+                preparedStatement.setString(4, choiceB);
+                preparedStatement.setString(5, choiceC);
+                preparedStatement.setString(6, choiceD);
+                preparedStatement.setString(7, answerLine);
 
-                preparedstatement.executeUpdate();
+                preparedStatement.executeUpdate();
             }
 
             fileReader.close();
-            preparedstatement.close();
+            preparedStatement.close();
             statement.close();
 
         } catch (SQLException e) {
             System.err.println("Ошибка БД: " + e.getMessage());
         } catch (FileNotFoundException e) {
-            System.err.println("Файл не найден!");
+            System.err.println("Ошибка");
+        } catch (Exception e) {
+            System.err.println("Ошибка" + e.getMessage());
+
         }
     }
 }
